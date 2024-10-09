@@ -1,17 +1,18 @@
-import { User } from "../models/user.models";
-import { generateToken } from "../utils/features";
+import { User } from "../models/user.models.js";
+import { generateToken } from "../utils/features.js";
 import httpStatus from "http-status";
-import asyncHandler from "../utils/asyncHandler";
+import asyncHandler from "../utils/asyncHandler.js";
 import crypto from "crypto";
+import ErrorHandler from "../utils/errorHandler.js";
 
-export const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res, next) => {
     const {name, username, password} = req.body;
 
     if(!name || !username || !password){
-        throw new Error("Invalid Inputs");
+        return next(new ErrorHandler(400, "Invalid Inputs"))
     }
 
-    const existingUser = await User.findOne({email});
+    const existingUser = await User.findOne({username});
     if(existingUser){
         return res.status(httpStatus.FOUND).json({
             success : false,
@@ -26,7 +27,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     })
 
     if(!user){
-        throw new Error("Something went wrong while creating new user");
+        return next(new ErrorHandler(500, "Something went wrong while creating new user"))
     }
 
     res.status(httpStatus.CREATED).json({
