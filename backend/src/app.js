@@ -5,6 +5,10 @@ dotenv.config();
 import {createServer} from "node:http";
 import {connectToServer} from "./controllers/socketManager.js";
 import cors from "cors";
+import errorMiddleware from "./middlewares/errorMiddleware.js";
+
+// importing routes
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 const server = createServer(app);
@@ -21,6 +25,10 @@ app.set("db_uri", process.env.DB_URI);
 app.get("/", (req,res) => {
     return res.json({"hello" : "world"})
 })
+
+app.use("/api/v1/user/", userRoutes);
+
+app.use(errorMiddleware);
 
 const start = async () => {
     try {
